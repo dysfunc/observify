@@ -1,0 +1,48 @@
+{
+  "name": "observify-js",
+  "description": "Observify JS - A lightweight JavaScript Object observer and eventing library using Proxies",
+  "main": "dist/observify.min.js",
+  "version": "1.1.0",
+  "authors": [
+    "Kieran Boyle <github@dysfunc>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "observe",
+    "observer",
+    "observable",
+    "proxy",
+    "es6",
+    "events",
+    "eventing",
+    "js",
+    "javascript",
+    "objects",
+    "object",
+    "props",
+    "changes",
+    "watch",
+    "changes",
+    "Object.observe",
+    "array",
+    "Object",
+    "change detection",
+    "object change",
+    "change event",
+    "listeners",
+    "proxies",
+    "listener",
+    "trap",
+    "spy",
+    "spies",
+    "event"
+  ],
+  "homepage": "https://github.com/dysfunc/observify-js",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}

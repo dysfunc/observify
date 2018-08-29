@@ -1,9 +1,14 @@
-export const deepCompare = function(){
+/**
+ * Custom object compare instead of Jasmine deep compare matchers
+ * since they stringify which results in Symbol to string issues.
+ */
+export const compareObjects = function(){
   let i, l, leftChain, rightChain;
 
   function compare2Objects(x, y){
     let p;
 
+    // avoid NaN check here since it will throw on Symbol
     if(typeof x === 'number' && typeof y === 'number'){
       return true;
     }

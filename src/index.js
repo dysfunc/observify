@@ -333,22 +333,22 @@ const Observify = (obj) => {
 
   /**
    * Fires all listening handlers that match the passed key/prop name
-   * @param  {String} key   String containing unique Object property key
+   * @param  {String} path   String containing path to the object property
    * @param  {Mixed}  value  Current value of the passed property
    * @param  {Object} scope  Scope in which to execute the callback function
    * @return {Boolean}       Always returns true
    */
-  const triggerEvents = (prop, value, scope) => {
-    const event = meta[prop];
+  const triggerEvents = (path, value, scope) => {
+    const event = meta[path];
 
     if(event){
       const name = event.eventName;
 
       if(props[name]){
-        props[name].forEach((fn) => fn.call(scope, value, event.prevValue, prop, name));
+        props[name].forEach((fn) => fn.call(scope, value, event.prevValue, path));
       }
 
-      meta[prop].prevValue = value instanceof Array ? value.slice() : value
+      event.prevValue = value instanceof Array ? value.slice() : value
     }
 
     return true;
@@ -363,12 +363,15 @@ const Observify = (obj) => {
     get(target, prop){
       const value = target[prop];
       // traps array operation (i.e. .push, .shift, .unshfit, etc...)
-      if(typeof value === 'function' && target instanceof Array){
-        // trigger any property listeners
-        triggerEvents(this.ref, target, this);
+      if(typeOf(value) === 'function' && typeOf(target) === 'array'){
+        const self = this;
         // allow operation through
         return function(){
-          return Array.prototype[prop].apply(target, arguments);
+          const array = Array.prototype[prop].apply(target, arguments)
+          // trigger any listeners
+          triggerEvents(self.ref, target, self);
+
+          return array;
         }
       }
       // build out property access path using dot notation (for event bindings)
@@ -392,9 +395,7 @@ const Observify = (obj) => {
 
       triggerEvents(path, value, this);
 
-      if(target[prop] !== value){
-        target[prop] = value;
-      }
+      target[prop] = value;
 
       return true;
     }

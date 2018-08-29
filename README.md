@@ -4,6 +4,8 @@ Observify is a bare-bones observable and eventing library using Proxies. This li
 
 * [Babel 7](https://babeljs.io/)
 * [Webpack 4](https://webpack.github.io/)
+* [Chai](http://www.chaijs.com/)
+* [Sinon](https://sinonjs.org/)
 * [Jasmine](http://jasmine.github.io/)
 * [Karma](http://karma-runner.github.io/)
 * [Istanbul](https://github.com/deepsweet/istanbul-instrumenter-loader)
@@ -85,7 +87,7 @@ const person = Observify({
   }
 });
 
-person.listen('tshirt.logo.brand', function(newValue, oldValue, propName, eventname) {
+person.listen('tshirt.logo.brand', function(newValue, oldValue, propPath) {
   console.log(newValue, oldValue);
 });
 

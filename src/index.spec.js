@@ -1,6 +1,9 @@
 import Observify from './index';
+import sinon from 'sinon';
+import { expect } from 'chai';
+
 // use custom deep compare since Symbols
-import { deepCompare } from '../tests/utils/objects';
+import { compareObjects } from '../tests/utils/objects';
 
 describe('Observify', function(){
   const object = {
@@ -27,29 +30,205 @@ describe('Observify', function(){
     ]
   };
 
+  const person = Observify(object);
+
   describe('Basics', function(){
     it('should be defined', function(){
-      expect(Observify).toBeDefined();
+      expect(Observify).to.not.be.undefined;
     });
-
-    const person = Observify(object);
 
     it('should return a new Proxy object', function(){
       // verify lib methods exist at the root of the object
-      expect(person.listen).toBeDefined();
-      expect(person.unlisten).toBeDefined();
-      expect(person.on).toBeDefined();
-      expect(person.off).toBeDefined();
-      expect(person.lock).toBeDefined();
-      expect(person.unlock).toBeDefined();
+      expect(person.listen).to.not.be.undefined;
+      expect(person.unlisten).to.not.be.undefined;
+      expect(person.on).to.not.be.undefined;
+      expect(person.off).to.not.be.undefined;
+      expect(person.lock).to.not.be.undefined;
+      expect(person.unlock).to.not.be.undefined;
     });
 
-    it('should have an identical object structure', function(){
-      const keys = Object.keys(person);
-
-      expect(keys).toEqual(Object.keys(object));
-
-      expect(deepCompare(person, object)).toBe(true);
+    it('should match the source object', function(){
+      // make sure our proxy object matches the source object
+      expect(compareObjects(person, object)).to.equal(true);
     });
+  });
+
+  describe('#listen / #unlisten', function(){
+    const sandbox = sinon.createSandbox();
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should trigger the callback on the property change (integer)', function(){
+      const ageChange = sandbox.stub();
+
+      person.listen('age', ageChange);
+
+      person.age++;
+
+      expect(ageChange.getCall(0).args).to.eql([ 22, 21, 'age' ]);
+      expect(ageChange.calledOnce).to.be.true;
+    });
+
+    it('should trigger the callback on the property change (array)', function(){
+
+      const nicknamesChange = sandbox.stub();
+
+      person.listen('nicknames', nicknamesChange);
+
+      // .pop()
+      const popped = person.nicknames.pop();
+
+      expect(nicknamesChange.getCall(0).args).to.eql([['shorty','tiny'], ['shorty', 'tiny', 'smalls'], 'nicknames']);
+      expect(nicknamesChange.calledOnce).to.be.true;
+      expect(person.nicknames.length).to.equal(2);
+      expect(popped).to.equal('smalls');
+
+
+      // .shift()
+      const shifted = person.nicknames.shift();
+
+      expect(nicknamesChange.getCall(1).args).to.eql([['tiny'], ['shorty', 'tiny'], 'nicknames']);
+      expect(person.nicknames.length).to.equal(1);
+      expect(shifted).to.equal('shorty');
+
+      // .push()
+
+      const pushed = person.nicknames.push('who dis');
+      expect(person.nicknames.length).to.equal(2);
+
+      expect(nicknamesChange.getCall(2).args).to.eql([['tiny', 'who dis'], ['tiny'], 'nicknames']);
+
+      // .unshift()
+
+      const unshift = person.nicknames.unshift('who dat');
+      expect(person.nicknames.length).to.equal(3);
+
+      expect(nicknamesChange.getCall(3).args).to.eql([['who dat','tiny', 'who dis'], ['tiny', 'who dis'], 'nicknames']);
+
+      person.unlisten('nicknames', nicknamesChange);
+    });
+
+    it('should trigger the callback on the property change (object)', function(){
+
+      // single property
+
+      const descriptionChange = sandbox.stub();
+
+      person.listen('description', descriptionChange);
+
+      person.description.eyes = 'green';
+
+      expect(descriptionChange.getCall(0).args).to.eql(['green', 'blue', 'description.eyes']);
+
+      // entire object
+
+      person.description = { hello: 'world' };
+
+      expect(descriptionChange.getCall(1).args).to.eql([{
+        hello: 'world'
+      },{
+        eyes: 'green',
+        hair: 'brown',
+        skin: 'purple',
+        weight: 180,
+        height: 73,
+        tattoos: {
+          arm: 'mariokart',
+          leg: 'i love mom heart',
+          back: 'japanese waves'
+        }
+      }, 'description']);
+
+      person.unlisten('description', descriptionChange);
+
+      person.description = {
+        eyes: 'green',
+        hair: 'brown',
+        skin: 'purple',
+        weight: 180,
+        height: 73,
+        tattoos: {
+          arm: 'mariokart',
+          leg: 'i love mom heart',
+          back: 'japanese waves'
+        }
+      };
+    });
+
+    it('should trigger the callback on the property change (nested objects)', function(){
+
+      const armChange = sandbox.stub();
+
+      person.listen('description.tattoos.arm', armChange);
+
+      person.description.tattoos.arm = 'butterfly';
+
+      expect(armChange.getCall(0).args).to.eql(['butterfly', 'mariokart', 'description.tattoos.arm']);
+
+      person.unlisten('description.tattoos.arm');
+    });
+  });
+
+  describe('#lock / #unlock', function(){
+    const sandbox = sinon.createSandbox();
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should prevent any writes to the locked property (root-level property)', function(){
+
+      person.lock('age');
+
+      expect(person.age).to.equal(22);
+
+      person.age++;
+
+      expect(person.age).to.equal(22);
+    });
+
+    it('should allow writes after unlocking property (root-level - integer)', function(){
+
+      expect(person.age).to.equal(22);
+
+      person.unlock('age');
+
+      person.age++;
+
+      expect(person.age).to.equal(23);
+    });
+
+    it('should prevent any writes to the locked property (nested property - integer)', function(){
+      person.lock('description.height');
+
+      expect(person.description.height).to.equal(73);
+
+      person.description.height++;
+
+      expect(person.description.height).to.equal(73);
+    });
+
+    it('should allow writes after unlocking property (nested property - integer)', function(){
+      expect(person.description.height).to.equal(73);
+
+      person.unlock('description.height');
+
+      person.description.height++;
+
+      expect(person.description.height).to.equal(74);
+    });
+
+    // ISSUE - Arrays need to lock properly :|
+    // it('should prevent any writes to the locked property (root-level array)', function(){
+    //   person.lock('nicknames');
+    //
+    //   expect(person.nicknames.length).to.equal(3);
+    //
+    //   person.nicknames.pop();
+    //
+    //   expect(person.nicknames.length).to.equal(3);
+    // });
   });
 });

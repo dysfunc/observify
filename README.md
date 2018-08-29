@@ -13,7 +13,7 @@ Observify is a bare-bones observable and eventing library using Proxies. This li
 * [Istanbul](https://github.com/deepsweet/istanbul-instrumenter-loader)
 
 ## Install
-You can install via NPM or Bower
+You can install Observify using NPM or Bower
 
 **NPM**
 ```js

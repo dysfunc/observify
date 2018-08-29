@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.com/dysfunc/observify.svg?branch=master)](https://travis-ci.com/dysfunc/observify) [![Coverage Status](https://coveralls.io/repos/github/dysfunc/observify/badge.svg)](https://coveralls.io/github/dysfunc/observify) [![dependencies Status](https://david-dm.org/dysfunc/observify.svg)](https://david-dm.org/dysfunc/observify)
+[![Build Status](https://travis-ci.com/dysfunc/observify.svg?branch=master)](https://travis-ci.com/dysfunc/observify) [![Coverage Status](https://coveralls.io/repos/github/dysfunc/observify/badge.svg)](https://coveralls.io/github/dysfunc/observify) [![npm version](https://badge.fury.io/js/observify-js.svg)](https://badge.fury.io/js/observify-js) [![dependencies Status](https://david-dm.org/dysfunc/observify.svg)](https://david-dm.org/dysfunc/observify)
 
 # Observify JS
 

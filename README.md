@@ -10,9 +10,9 @@ Observify is a bare-bones observable and eventing library using Proxies. This li
 
 * [Babel 7](https://babeljs.io/)
 * [Webpack 4](https://webpack.github.io/)
+* [Jasmine](http://jasmine.github.io/)
 * [Chai](http://www.chaijs.com/)
 * [Sinon](https://sinonjs.org/)
-* [Jasmine](http://jasmine.github.io/)
 * [Karma](http://karma-runner.github.io/)
 * [Istanbul](https://github.com/deepsweet/istanbul-instrumenter-loader)
 
@@ -43,7 +43,7 @@ import Observify from 'Observify';
 
 **Require**
 ```js
-const Observify = require("Observify")
+const Observify = require('Observify');
 ```
 
 **RequireJS**
@@ -367,13 +367,14 @@ npm install
 
 ### Tests
 To start Karma and execute all unit tests, run:
+
 ```
 npm test
-
 ```
 
 ### Coverage
 To start Karma and generate a coverage report after executing all unit tests, run:
+
 ```
 npm run coverage
 ```

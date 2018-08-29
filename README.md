@@ -366,15 +366,8 @@ npm install
 ```
 
 ### Tests
-To start Karma and execute all unit tests, run:
+To start Karma and execute all unit tests with coverage, run:
 
 ```
 npm test
-```
-
-### Coverage
-To start Karma and generate a coverage report after executing all unit tests, run:
-
-```
-npm run coverage
 ```

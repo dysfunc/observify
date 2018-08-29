@@ -22,9 +22,15 @@ module.exports = function(karma){
       'tests/setup.js',
     ],
     preprocessors: {
-      'tests/setup.js': ['webpack']
+      'tests/setup.js': ['webpack', 'sourcemap']
     },
     reporters: ['progress', 'coverage'],
+    customLaunchers: {
+      Chrome_travis_ci: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      }
+    },
     webpack: {
       mode: 'development',
       cache: true,

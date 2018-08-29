@@ -4,13 +4,13 @@
   "description": "A lightweight JavaScript Object observer and eventing library using Proxies",
   "main": "dist/observify.min.js",
   "author": "Kieran Boyle <github@dysfunc>",
-  "homepage": "https://github.com/dysfunc/observify-js",
+  "homepage": "https://github.com/dysfunc/observify",
   "repository": {
     "type": "git",
-    "url": "git://github.com/dysfunc/observify-js.git"
+    "url": "git://github.com/dysfunc/observify.git"
   },
   "bugs": {
-    "url": "https://github.com/dysfunc/observify-js/issues"
+    "url": "https://github.com/dysfunc/observify/issues"
   },
   "keywords": [
     "observe",

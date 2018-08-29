@@ -1,3 +1,5 @@
+<img src="https://user-images.githubusercontent.com/1918732/44810799-b9be6f00-ab87-11e8-9c14-9608edbe58c2.png" width="50%"/>
+
 [![Build Status](https://travis-ci.com/dysfunc/observify.svg?branch=master)](https://travis-ci.com/dysfunc/observify) [![codecov](https://codecov.io/gh/dysfunc/observify/branch/master/graph/badge.svg)](https://codecov.io/gh/dysfunc/observify) [![npm version](https://badge.fury.io/js/observify-js.svg)](https://badge.fury.io/js/observify-js) [![dependencies Status](https://david-dm.org/dysfunc/observify.svg)](https://david-dm.org/dysfunc/observify) [![Known Vulnerabilities](https://snyk.io/test/github/dysfunc/observify/badge.svg?targetFile=package.json)](https://snyk.io/test/github/dysfunc/observify?targetFile=package.json)
 
 # Observify JS

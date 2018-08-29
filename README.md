@@ -1,3 +1,9 @@
+[![Build Status](https://travis-ci.org/dysfunc/observify.svg?branch=master)](https://travis-ci.org/dysfunc/observify)
+
+[![Coverage Status](https://coveralls.io/repos/github/dysfunc/observify/badge.svg)](https://coveralls.io/github/dysfunc/observify)
+
+[![dependencies Status](https://david-dm.org/dysfunc/observify.svg)](https://david-dm.org/dysfunc/observify)
+
 # Observify JS
 
 Observify is a bare-bones observable and eventing library using Proxies. This library enables you to attach event handlers to your objects so you can be notified when specific properties change. This will also allow you to lock and unlock write access to any property of an object.

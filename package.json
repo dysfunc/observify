@@ -43,7 +43,7 @@
     "event"
   ],
   "scripts": {
-    "build": "eslint --fix . && babel --presets=latest src/index.js --out-file dist/observify.min.js && uglifyjs --compress --mangle --output dist/observify.min.js -- dist/observify.min.js",
+    "build": "eslint --fix . && babel --presets=env src/index.js --out-file dist/observify.min.js && uglifyjs --compress --mangle --output dist/observify.min.js -- dist/observify.min.js",
     "test": "karma start --single-run",
     "coverage": "karma start --single-run --no-auto-watch --coverage=true || echo done"
   },
@@ -55,7 +55,6 @@
     "babel-preset-env": "^1.7.0",
     "chai": "^4.1.2",
     "eslint": "^5.0.1",
-    "html-webpack-plugin": "^2.28.0",
     "istanbul-instrumenter-loader": "^2.0.0",
     "jasmine": "^2.5.3",
     "jasmine-core": "^2.5.2",
@@ -68,7 +67,7 @@
     "karma-sourcemap-writer": "^0.1.2",
     "karma-webpack": "^3.0.0",
     "sinon": "^6.1.5",
-    "uglifyjs": "^2.4.11",
+    "uglify-js": "^3.4.8",
     "webpack": "^4.5.0",
     "webpack-cli": "^2.0.14"
   }

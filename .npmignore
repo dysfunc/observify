@@ -1,0 +1,4 @@
+*.log
+src
+tests
+test-results

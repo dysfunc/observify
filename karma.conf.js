@@ -1,5 +1,5 @@
-module.exports = function (config) {
-  config.set({
+module.exports = function(karma){
+  const config = {
     browsers: ['Chrome'],
     colors: true,
     client: {
@@ -22,9 +22,15 @@ module.exports = function (config) {
       'tests/setup.js',
     ],
     preprocessors: {
-      'tests/setup.js': ['webpack']
+      'tests/setup.js': ['webpack', 'sourcemap']
     },
     reporters: ['progress', 'coverage'],
+    customLaunchers: {
+      Chrome_travis_ci: {
+        base: 'Chrome',
+        flags: ['--no-sandbox']
+      }
+    },
     webpack: {
       mode: 'development',
       cache: true,
@@ -61,5 +67,12 @@ module.exports = function (config) {
         ]
       }
     }
-  });
+  };
+
+  if(process.env.TRAVIS) {
+    config.browsers = ['Chrome_travis_ci'];
+    config.reporters.push('coveralls');
+  }
+
+  karma.set(config);
 };

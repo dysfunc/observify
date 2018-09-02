@@ -2,9 +2,6 @@ import Observify from './index';
 import sinon from 'sinon';
 import { expect } from 'chai';
 
-// use custom deep compare since Symbols
-import { compareObjects } from '../tests/utils/objects';
-
 describe('Observify', function(){
   const object = {
     name: 'Bobert',
@@ -48,8 +45,7 @@ describe('Observify', function(){
     });
 
     it('should match the source object', function(){
-      // make sure our proxy object matches the source object
-      expect(compareObjects(person, object)).to.equal(true);
+      expect(person).to.eql(object);
     });
   });
 
@@ -69,6 +65,8 @@ describe('Observify', function(){
 
       expect(ageChange.getCall(0).args).to.eql([ 22, 21, 'age' ]);
       expect(ageChange.calledOnce).to.be.true;
+
+      person.unlisten('age', ageChange);
     });
 
     it('should trigger the callback on the property change (array)', function(){
@@ -168,6 +166,16 @@ describe('Observify', function(){
       expect(armChange.getCall(0).args).to.eql(['butterfly', 'mariokart', 'description.tattoos.arm']);
 
       person.unlisten('description.tattoos.arm');
+    });
+
+    it('should NOT trigger the callback when the new value is the same as the old value', function(){
+      const ageChange = sandbox.stub();
+
+      person.listen('age', ageChange);
+
+      person.age = 22;
+
+      expect(ageChange.calledOnce).to.be.false;
     });
   });
 

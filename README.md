@@ -14,6 +14,8 @@ Observify is a bare-bones observable and eventing library using Proxies. This li
 * [Karma](http://karma-runner.github.io/)
 * [Istanbul](https://github.com/deepsweet/istanbul-instrumenter-loader)
 
+A collection of demos will soon be available. Until then, please have a look at this [CodePen Demo](https://codepen.io/kieran/pen/pOeRNV) as an example of one of the many ways you could use this in development.
+
 ## Install
 You can install Observify using NPM or Bower
 

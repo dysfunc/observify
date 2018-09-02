@@ -1,6 +1,6 @@
 {
   "name": "observify-js",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "description": "A lightweight JavaScript Object observer and eventing library using Proxies",
   "main": "dist/observify.min.js",
   "author": "Kieran Boyle <github@dysfunc>",
@@ -44,7 +44,8 @@
   ],
   "scripts": {
     "build": "eslint --fix . && babel --presets=env src/index.js --out-file dist/observify.min.js && uglifyjs --compress --mangle --output dist/observify.min.js -- dist/observify.min.js",
-    "test": "karma start --single-run --no-auto-watch --coverage=true && codecov --token=acefc7dc-f0fc-414a-9d38-8c81ac94bc96"
+    "test": "karma start --single-run --no-auto-watch --coverage=true && codecov --token=acefc7dc-f0fc-414a-9d38-8c81ac94bc96",
+    "unit": "karma start --single-run --no-auto-watch --coverage=true"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

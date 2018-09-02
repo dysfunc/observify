@@ -40,10 +40,54 @@ const Observify = (obj) => {
   const typeOf = (obj) => obj === null ? String(obj) : class2type[toString.call(obj)] || 'object';
 
   /**
-   * Determines if the passed object prop is writable or not
+   * Performs a deep comparison between two values to determine if they are equivalent.
+   * @param  {*} x     The value to compare
+   * @param  {*} y     The other value to compare
+   * @return {Boolean} Returns true if the values are equivalent, else false.
+   */
+   const isEqual = function(x, y){
+     if(x === null || x === undefined || y === null || y === undefined){
+       return x === y;
+     }
+
+     if(x.constructor !== y.constructor){
+       return false;
+     }
+
+     // functions and regexp should strictly equal each other
+     if(x instanceof Function || x instanceof RegExp){
+       return x === y;
+     }
+
+     // strict equality check or matching valueOf
+     if(x === y || x.valueOf() === y.valueOf()){
+       return true;
+     }
+
+     if(Array.isArray(x) && x.length !== y.length){
+       return false;
+     }
+
+     // if dates, valueOf would've have matched
+     if(x instanceof Date){
+       return false;
+     }
+
+     if(!(x instanceof Object) || !(y instanceof Object)){
+       return false;
+     }
+
+     // recursive object equality check
+     const keys = Object.keys(x);
+
+     return Object.keys(y).every((key) => keys.indexOf(key) !== -1) && keys.every((key) => isEqual(x[key], y[key]));
+  };
+
+  /**
+   * Determines if the passed object prop is writable
    * @param  {Object} target Parent object containing the key
    * @param  {String} key    String containing unique Object property key
-   * @return {Boolean}       True or false
+   * @return {Boolean}       Returns true if the object property is writable, else false.
    */
   const isWritable = (target, key) => {
     const descriptor = Object.getOwnPropertyDescriptor(target, key);
@@ -53,7 +97,7 @@ const Observify = (obj) => {
   /**
    * Returns the value at the passed property path
    * @param  {String} prop Object property path in dot notation
-   * @return {Mixed}       Property value
+   * @return {*}           The property value
    */
   const lookup = (prop) => {
     const parent = traverse(prop);
@@ -65,9 +109,9 @@ const Observify = (obj) => {
   /**
    * Recursively binds/unbinds callbacks to/from the passed object
    * @param  {String}   prop  String containing the object property key
-   * @param  {Mixed}    value The value of the object property
+   * @param  {*}        value The value of the object property
    * @param  {Function} fn    Function to bind/unbind on changes
-   * @param  {Boolean}  flag  If true, unbind the callback function
+   * @param  {Boolean}  flag  If true, unbind the callback function(s) else binds callback(s)
    */
   const recursive = function(prop, value, fn, flag){
     if(typeOf(value) === 'object'){
@@ -94,7 +138,7 @@ const Observify = (obj) => {
   /**
    * Recursively prevents writes to each object property of the passed object
    * @param  {Object} object Object to iterate over
-   * @return {Object}        Observify Object
+   * @return {Object}        Returns the object
    */
   const lock = (object) => {
     const keys = Object.keys(object);
@@ -119,7 +163,7 @@ const Observify = (obj) => {
   /**
    * Recursively enables writes to each locked object properties of the passed object
    * @param  {Object} object Object to iterate over
-   * @return {Object}        Observify Object
+   * @return {Object}        Returns the object
    */
   const unlock = (object) => {
     const keys = Object.keys(object);
@@ -144,7 +188,7 @@ const Observify = (obj) => {
   /**
    * Returns the target parent from the path
    * @param  {String} path String containing the event name in dot notation
-   * @return {Object}      The parent Object matching the path
+   * @return {Object}      Returns the matched parent object from the path
    */
   const traverse = (path) => {
     const index = (o, i) => o[i];
@@ -157,8 +201,8 @@ const Observify = (obj) => {
   /**
    * Helper method to save the event namespace and
    * previous value to our cache for ref in callbacks
-   * @param  {String} path String containing the event name in dot notation
-   * @return {String}      The event name
+   * @param  {String} path String containing the property path in dot notation
+   * @return {String}      Returns the unique path (used as the event namespace)
    */
   const metadata = (path) => {
     const prevValue = lookup(path);
@@ -175,8 +219,8 @@ const Observify = (obj) => {
    * Helper method to bind handlers to props or events
    * @param  {Object}   cache    The event handler cache to use
    * @param  {String}   key      String containing the prop or event name
-   * @param  {Function} callback Callback function to bind to the key
-   * @return {Object}            Observify Object
+   * @param  {Function} callback The callback function that we'll assign to the key
+   * @return {Object}            Returns the object
    */
   const bind = (cache, key, callback) => {
     if(!cache[key]){
@@ -192,8 +236,8 @@ const Observify = (obj) => {
    * Helper method to unbind handlers from props or events
    * @param  {Object}   cache    The event handler cache to use
    * @param  {String}   key      String containing the prop or event name
-   * @param  {Function} callback Callback function to unbind
-   * @return {Object}            Observify Object
+   * @param  {Function} callback The callback function to unbind from the key
+   * @return {Object}            Returns the object
    */
   const unbind = (cache, key, callback) => {
     if(cache[key] && callback === undefined){
@@ -216,9 +260,9 @@ const Observify = (obj) => {
   };
 
   /**
-   * Prevents the ability to override specific properties
-   * @param  {String} path String containing the dot notation to object prop
-   * @return {Object}      Observify Object
+   * Disables the ability to write to a specific property
+   * @param  {String} path String containing the path to object property in dot notation
+   * @return {Object}      Returns the object
    */
   obj.lock = (path) => {
     if(!path){
@@ -245,9 +289,9 @@ const Observify = (obj) => {
   };
 
   /**
-   * Allows writes on object properties
+   * Enables writes to a specific property
    * @param  {String} path String containing the dot notation to object prop
-   * @return {Object}      Observify Object
+   * @return {Object}      Returns the object
    */
   obj.unlock = (path) => {
     if(!path){
@@ -277,7 +321,7 @@ const Observify = (obj) => {
    * Listen for changes on a specific prop
    * @param  {String}   prop String containing the Object key to watch
    * @param  {Function} fn   Callback function to execute on property value change
-   * @return {Object}        Observify Object
+   * @return {Object}        Returns the object
    */
   obj.listen = (prop, fn) => recursive(prop, lookup(prop), fn);
 
@@ -285,15 +329,15 @@ const Observify = (obj) => {
    * Stops listening for changes on a specific prop
    * @param  {String}   prop String containing the Object key to unwatch
    * @param  {Function} fn   Callback handler to remove (Optional). If blank, all handlers will be removed
-   * @return {Object}        Observify Object
+   * @return {Object}        Returns the object
    */
   obj.unlisten = (prop, fn) => recursive(prop, lookup(prop), fn, true);
 
   /**
    * Bind event handlers to an event namespace
    * @param  {String}   event String containing the event name
-   * @param  {Function} fn    Callback handler to execute on when event has been triggered
-   * @return {Object}         Observify Object
+   * @param  {Function} fn    Callback handler to execute when an event has been triggered
+   * @return {Object}         Returns the object
    */
   obj.on = (event, fn) => bind(events, event, fn);
 
@@ -301,14 +345,14 @@ const Observify = (obj) => {
    * Unbind event handlers from an event namespace
    * @param  {String}   event String containing the event name
    * @param  {Function} fn    Callback handler to remove. If blank, all handlers will be removed
-   * @return {Object}         Observify Object
+   * @return {Object}         Returns the object
    */
   obj.off = (event, fn) => unbind(events, event, fn);
 
   /**
    * Triggers all callbacks bound to an event namespace
    * @param  {String} event String containing the event name
-   * @return {Object}       Observify Object
+   * @return {Object}       Returns the object
    */
   obj.trigger = function(event){
     const args = slice.call(arguments, 1);
@@ -345,7 +389,9 @@ const Observify = (obj) => {
       const name = event.eventName;
 
       if(props[name]){
-        props[name].forEach((fn) => fn.call(scope, value, event.prevValue, path));
+        if(!isEqual(value, event.prevValue)){
+          props[name].forEach((fn) => fn.call(scope, value, event.prevValue, path));
+        }
       }
 
       event.prevValue = value instanceof Array ? value.slice() : value
@@ -375,7 +421,8 @@ const Observify = (obj) => {
         }
       }
       // build out property access path using dot notation (for event bindings)
-      const ref = this.ref ? `${this.ref}.${prop}` : prop;
+      // use .toString() to avoid Symbol to string errors. Symbols must be stringified explicitly
+      const ref = this.ref ? `${this.ref}.${prop.toString()}` : prop;
       // add our ref to the proxy handler object
       const handlerObj = Object.assign({}, handler, { ref });
       // create a new proxy object for properties that are objects or arrays
@@ -387,15 +434,15 @@ const Observify = (obj) => {
     },
     set(target, prop, value){
       const writable = isWritable(target, prop);
-      const path = this.ref ? `${this.ref}.${prop}` : prop;
+      const path = this.ref ? `${this.ref}.${prop.toString()}` : prop;
 
       if(!writable){
         return target[prop];
       }
 
-      triggerEvents(path, value, this);
-
       target[prop] = value;
+
+      triggerEvents(path, value, this);
 
       return true;
     }

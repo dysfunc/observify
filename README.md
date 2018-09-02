@@ -369,5 +369,5 @@ npm install
 To start Karma and execute all unit tests with coverage, run:
 
 ```
-npm test
+npm run unit
 ```

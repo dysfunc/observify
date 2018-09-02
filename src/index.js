@@ -50,17 +50,16 @@ const Observify = (obj) => {
        return x === y;
      }
 
-     // after this just checking type of one would be enough
      if(x.constructor !== y.constructor){
        return false;
      }
 
-     // if functions or regexp, they should exactly refer to same one
+     // functions and regexp should strictly equal each other
      if(x instanceof Function || x instanceof RegExp){
        return x === y;
      }
 
-     // strict equality check or matching .valueOf()
+     // strict equality check or matching valueOf
      if(x === y || x.valueOf() === y.valueOf()){
        return true;
      }
@@ -69,12 +68,11 @@ const Observify = (obj) => {
        return false;
      }
 
-     // if they are dates, they must had equal valueOf
+     // if dates, valueOf would've have matched
      if(x instanceof Date){
        return false;
      }
 
-     // if they are strictly equal, they both need to be object at least
      if(!(x instanceof Object) || !(y instanceof Object)){
        return false;
      }

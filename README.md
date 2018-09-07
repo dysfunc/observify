@@ -16,7 +16,7 @@ Observify is a bare-bones observable and eventing library using Proxies. This li
 
 A collection of demos will soon be available. Until then, please have a look at the basic demos below as examples of the many ways you could use this in development.
 
-- [Onservify with DOM elements](https://codepen.io/kieran/pen/QVOqbm)
+- [Observify with DOM elements](https://codepen.io/kieran/pen/QVOqbm)
 - [Observify with state](https://codepen.io/kieran/pen/pOeRNV)
 
 ## Install

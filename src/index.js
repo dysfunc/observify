@@ -420,6 +420,10 @@ const Observify = (obj) => {
           return array;
         }
       }
+      // if function use bind (fixes issues with invoking DOM element methods)
+      if(typeOf(value) === 'function' && typeOf(target) !== 'array'){
+        return value.bind(obj);
+      }
       // build out property access path using dot notation (for event bindings)
       // use .toString() to avoid Symbol to string errors. Symbols must be stringified explicitly
       const ref = this.ref ? `${this.ref}.${prop.toString()}` : prop;

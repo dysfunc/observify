@@ -24,6 +24,12 @@ const Observify = (obj) => {
   const meta = {};
 
   /**
+   * API methods
+   * @type {Array}
+   */
+  const methods = ['on', 'off', 'listen', 'unlisten', 'trigger', 'lock', 'unlock'];
+
+  /**
    * class2type dictonary
    * @type {Object}
    */
@@ -368,7 +374,7 @@ const Observify = (obj) => {
    * Prevent library methods from being writable and enumerable
    * @type {Boolean}
    */
-  ['on', 'off', 'listen', 'unlisten', 'trigger', 'lock', 'unlock'].forEach((property) => {
+  methods.forEach((property) => {
     Object.defineProperty(obj, property, {
       enumerable: false,
       writable: false
@@ -421,7 +427,7 @@ const Observify = (obj) => {
         }
       }
       // if function use bind (fixes issues with invoking DOM element methods)
-      if(typeOf(value) === 'function' && typeOf(target) !== 'array'){
+      if(typeOf(value) === 'function' && typeOf(target) !== 'array' && !methods.includes(prop)){
         return value.bind(obj);
       }
       // build out property access path using dot notation (for event bindings)
@@ -446,7 +452,7 @@ const Observify = (obj) => {
 
       target[prop] = value;
 
-      triggerEvents(path, value, this);
+      triggerEvents(path, value, obj);
 
       return true;
     }

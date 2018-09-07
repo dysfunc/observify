@@ -420,7 +420,7 @@ const Observify = (obj) => {
           return array;
         }
       }
-      // if value is a function use bind (fixes issues with invoking DOM elements)
+      // if function use bind (fixes issues with invoking DOM element methods)
       if(typeOf(value) === 'function' && typeOf(target) !== 'array'){
         return value.bind(obj);
       }

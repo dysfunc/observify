@@ -1,5 +1,4 @@
 const Observify = (obj) => {
-
   // ref for Object.toString for checking class type
   const toString = {}.toString;
   // ref for slice so we only do it once
@@ -24,6 +23,17 @@ const Observify = (obj) => {
   const meta = {};
 
   /**
+   * Collection of object props that have been locked from write access
+   * This is needed for dealing several scenarios but specifically
+   * locking DOM element props like CSSStyleDeclaration.
+   *
+   * Note: In this scenario the DOM element.style could be modified directly
+   * but not if interacting with the Proxied element.
+   * @type {Array}
+   */
+  const locked = [];
+
+  /**
    * API methods
    * @type {Array}
    */
@@ -33,8 +43,8 @@ const Observify = (obj) => {
    * class2type dictonary
    * @type {Object}
    */
-  const class2type = ['Array', 'Boolean', 'Date', 'Error', 'Function', 'Object', 'RegExp', 'String'].reduce((obj, type) => {
-    obj['[object ' + type + ']'] = type.toLowerCase();
+  const class2type = ['Array', 'Boolean', 'Date', 'Error', 'Function', 'Number', 'Object', 'RegExp', 'String'].reduce((obj, type) => {
+    obj[`[object ${type}]`] = type.toLowerCase();
     return obj;
   }, {});
 
@@ -90,15 +100,20 @@ const Observify = (obj) => {
   };
 
   /**
-   * Determines if the passed object prop is writable
+   * Determines if the passed object belongs to the `CSSStyleDeclaration` object
+   * Locking/Unlocking of CSS style props require special handling
+   * @param  {Object}  obj Object to check
+   * @return {Boolean}     Returns true if the object belongs to `CSSStyleDeclaration`, else false
+   */
+  const isCSS = (obj) => obj.constructor.name === 'CSSStyleDeclaration';
+
+  /**
+   * Determines if the passed object prop has been locked or not
    * @param  {Object} target Parent object containing the key
    * @param  {String} key    String containing unique Object property key
-   * @return {Boolean}       Returns true if the object property is writable, else false.
+   * @return {Boolean}       Returns true if the object property is writable, else false
    */
-  const isWritable = (target, key) => {
-    const descriptor = Object.getOwnPropertyDescriptor(target, key);
-    return !descriptor || descriptor && descriptor.writable;
-  };
+  const isWritable = (path) => !locked.includes(path);
 
   /**
    * Returns the value at the passed property path
@@ -146,20 +161,29 @@ const Observify = (obj) => {
    * @param  {Object} object Object to iterate over
    * @return {Object}        Returns the object
    */
-  const lock = (object) => {
+  const lock = (object, path) => {
     const keys = Object.keys(object);
 
-    for(let key of keys){
+    for(const key of keys){
+      const keyPath = path && path.length ? `${path}.${key}` : key;
+      const writable = isWritable(keyPath);
       const value = object[key];
 
       if(typeOf(value) === 'object'){
-        lock(value);
+        lock(value, keyPath);
       }else{
-        Object.defineProperty(object, key, {
-          enumerable: true,
-          writable: false,
-          value
-        });
+        if(writable){
+          locked.push(keyPath);
+
+          if(!isCSS(object)){
+            Object.defineProperty(object, key, {
+              configurable: true,
+              enumerable: true,
+              writable: false,
+              value
+            });
+          }
+        }
       }
     }
 
@@ -171,19 +195,25 @@ const Observify = (obj) => {
    * @param  {Object} object Object to iterate over
    * @return {Object}        Returns the object
    */
-  const unlock = (object) => {
+  const unlock = (object, path) => {
     const keys = Object.keys(object);
 
-    for(let key of keys){
-      const writable = isWritable(object, key);
+    for(const key of keys){
+      const keyPath = path && path.length ? `${path}.${key}` : key;
+      const writable = isWritable(keyPath);
       const value = object[key];
 
       if(typeOf(value) === 'object'){
-        lock(value);
+        unlock(value, keyPath);
       }else{
         if(!writable){
-          delete object[key];
-          object[key] = value;
+          locked.splice(locked.indexOf(keyPath), 1);
+
+          if(!isCSS(value)){
+            delete object[key];
+
+            object[key] = value;
+          }
         }
       }
     }
@@ -272,23 +302,30 @@ const Observify = (obj) => {
    */
   obj.lock = (path) => {
     if(!path){
-      return lock(obj);
+      return lock(obj, path);
     }
 
     const property = path.split('.').pop();
     const parent = traverse(path);
     const value = parent[property];
+    const writable = isWritable(path);
 
-    // make sure the key is not writable
-    Object.defineProperty(parent, property, {
-      enumerable: true,
-      writable: false,
-      value
-    });
+    if(writable){
+      // push unique path to locked collection
+      locked.push(path);
 
-    // recursively update object values
-    if(typeof(value) === 'object'){
-      lock(value);
+      // ensure the key is not writable
+      Object.defineProperty(parent, property, {
+        configurable: true,
+        enumerable: true,
+        writable: false,
+        value
+      });
+
+      // recursively update object values
+      if(typeof(value) === 'object'){
+        lock(value, path);
+      }
     }
 
     return obj;
@@ -301,22 +338,26 @@ const Observify = (obj) => {
    */
   obj.unlock = (path) => {
     if(!path){
-      return unlock(obj);
+      // this needs to be looked at
+      return unlock(obj, path);
     }
 
     const property = path.split('.').pop();
     const parent = traverse(path);
     const value = parent[property];
-    const writable = isWritable(parent, property);
+    const writable = isWritable(path);
 
     if(!writable){
-      delete parent[property];
+      locked.splice(locked.indexOf(path), 1);
 
-      parent[property] = value;
+      if(!isCSS(value)){
+        delete parent[property];
+        parent[property] = value;
+      }
 
       // recursively update object values
       if(typeOf(value) === 'object'){
-        unlock(value);
+        unlock(value, path);
       }
     }
 
@@ -414,28 +455,31 @@ const Observify = (obj) => {
   const handler = {
     get(target, prop){
       const value = target[prop];
-      // traps array operation (i.e. .push, .shift, .unshfit, etc...)
-      if(typeOf(value) === 'function' && typeOf(target) === 'array'){
-        const self = this;
-        // allow operation through
-        return function(){
-          const array = Array.prototype[prop].apply(target, arguments)
-          // trigger any listeners
-          triggerEvents(self.ref, target, self);
 
-          return array;
+      // traps array operation (i.e. .push, .shift, .unshfit, etc...)
+      if(typeOf(value) === 'function'){
+        if(typeOf(target) === 'array'){
+          const self = this;
+          // allow operation through
+          return function(){
+            const array = Array.prototype[prop].apply(target, arguments)
+            // trigger any listeners
+            triggerEvents(self.ref, target, self);
+
+            return array;
+          }
         }
-      }
-      // if function use bind (fixes issues with invoking DOM element methods)
-      if(typeOf(value) === 'function' && typeOf(target) !== 'array' && !methods.includes(prop)){
-        return value.bind(obj);
+        // set the proper scope (corrects issue with invoking DOM element methods)
+        if(!methods.includes(prop)){
+          return value.bind(obj);
+        }
       }
       // build out property access path using dot notation (for event bindings)
       // use .toString() to avoid Symbol to string errors. Symbols must be stringified explicitly
       const ref = this.ref ? `${this.ref}.${prop.toString()}` : prop;
       // add our ref to the proxy handler object
       const handlerObj = Object.assign({}, handler, { ref });
-      // create a new proxy object for properties that are objects or arrays
+      // create a new proxy for nested objects and arrays
       if(typeof value === 'object' && value !== null){
         return new Proxy(value, handlerObj);
       }
@@ -443,11 +487,11 @@ const Observify = (obj) => {
       return value;
     },
     set(target, prop, value){
-      const writable = isWritable(target, prop);
       const path = this.ref ? `${this.ref}.${prop.toString()}` : prop;
+      const writable = isWritable(path);
 
       if(!writable){
-        return target[prop];
+        return true;
       }
 
       target[prop] = value;

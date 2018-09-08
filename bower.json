@@ -2,7 +2,7 @@
   "name": "observify-js",
   "description": "Observify JS - A lightweight JavaScript Object observer and eventing library using Proxies",
   "main": "dist/observify.min.js",
-  "version": "1.1.10",
+  "version": "1.1.12",
   "authors": [
     "Kieran Boyle <github@dysfunc>"
   ],

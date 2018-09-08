@@ -19,6 +19,11 @@ A collection of demos will soon be available. Until then, please have a look at 
 - [Observify with DOM elements](https://codepen.io/kieran/pen/QVOqbm)
 - [Observify with state](https://codepen.io/kieran/pen/pOeRNV)
 
+## CDN
+```js
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/observify-js@1.1.10"></script>
+```
+
 ## Install
 You can install Observify using NPM or Bower
 

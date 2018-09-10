@@ -21,7 +21,7 @@ A collection of demos will soon be available. Until then, please have a look at 
 
 ## CDN
 ```js
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/observify-js@1.1.10"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/observify-js@1.1.13"></script>
 ```
 
 ## Install

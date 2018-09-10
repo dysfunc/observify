@@ -231,18 +231,15 @@ describe('Observify', function(){
     it('should lock and unlock the entire object', function(){
       expect(person.age).to.equal(23);
 
-      console.log('---------------------');
-
       person.lock();
       person.age++;
       person.unlock();
 
       person.age++;
 
-      console.log('---------------------');
-
       expect(person.age).to.equal(24);
     });
+
     // ISSUE - Arrays need to lock properly :|
     // it('should prevent any writes to the locked property (root-level array)', function(){
     //   person.lock('nicknames');
@@ -255,67 +252,67 @@ describe('Observify', function(){
     // });
   });
 
-  // describe('#DOM Nodes', function(){
-  //   const video = document.createElement('video');
-  //
-  //   const proxy = Observify(video);
-  //
-  //   const sandbox = sinon.createSandbox();
-  //
-  //   afterEach(function() {
-  //     sandbox.restore();
-  //   });
-  //
-  //   it('should returned a wrapped DOM node', function(){
-  //     expect(proxy.play).to.not.be.undefined;
-  //     expect(proxy.currentTime).to.not.be.undefined;
-  //     expect(proxy.muted).to.not.be.undefined;
-  //     expect(proxy.listen).to.not.be.undefined;
-  //     expect(proxy.unlisten).to.not.be.undefined;
-  //     expect(proxy.on).to.not.be.undefined;
-  //     expect(proxy.off).to.not.be.undefined;
-  //     expect(proxy.lock).to.not.be.undefined;
-  //     expect(proxy.unlock).to.not.be.undefined;
-  //   });
-  //
-  //   it('should prevent changes to the element styles (pseudo locking)', function(){
-  //
-  //     proxy.lock('style');
-  //
-  //     proxy.style.width = '100px';
-  //
-  //     expect(proxy.style.width).to.equal('');
-  //
-  //     proxy.style.height = '100px';
-  //
-  //     expect(proxy.style.height).to.equal('');
-  //
-  //     proxy.unlock('style.height');
-  //
-  //     proxy.style.height = '100px';
-  //
-  //     expect(proxy.style.height).to.equal('100px');
-  //
-  //     proxy.unlock('style');
-  //
-  //     proxy.style.width = '100px';
-  //
-  //     expect(proxy.style.width).to.equal('100px');
-  //     expect(proxy.style.height).to.equal('100px');
-  //   });
-  //
-  //   it('should prevent changes to the element props (prop locking)', function(){
-  //     proxy.lock('innerHTML');
-  //
-  //     proxy.innerHTML = '<div id="hello">world</div>';
-  //
-  //     expect(proxy.innerHTML).to.equal('');
-  //
-  //     proxy.unlock('innerHTML');
-  //
-  //     proxy.innerHTML = '<div id="hello">world</div>';
-  //
-  //     expect(proxy.querySelectorAll('#hello').length).to.equal(1);
-  //   });
-  // });
+  describe('#DOM Nodes', function(){
+    const video = document.createElement('video');
+
+    const proxy = Observify(video);
+
+    const sandbox = sinon.createSandbox();
+
+    afterEach(function() {
+      sandbox.restore();
+    });
+
+    it('should returned a wrapped DOM node', function(){
+      expect(proxy.play).to.not.be.undefined;
+      expect(proxy.currentTime).to.not.be.undefined;
+      expect(proxy.muted).to.not.be.undefined;
+      expect(proxy.listen).to.not.be.undefined;
+      expect(proxy.unlisten).to.not.be.undefined;
+      expect(proxy.on).to.not.be.undefined;
+      expect(proxy.off).to.not.be.undefined;
+      expect(proxy.lock).to.not.be.undefined;
+      expect(proxy.unlock).to.not.be.undefined;
+    });
+
+    it('should prevent changes to the element styles (pseudo locking)', function(){
+
+      proxy.lock('style');
+
+      proxy.style.width = '100px';
+
+      expect(proxy.style.width).to.equal('');
+
+      proxy.style.height = '100px';
+
+      expect(proxy.style.height).to.equal('');
+
+      proxy.unlock('style.height');
+
+      proxy.style.height = '100px';
+
+      expect(proxy.style.height).to.equal('100px');
+
+      proxy.unlock('style');
+
+      proxy.style.width = '100px';
+
+      expect(proxy.style.width).to.equal('100px');
+      expect(proxy.style.height).to.equal('100px');
+    });
+
+    it('should prevent changes to the element props (prop locking)', function(){
+      proxy.lock('innerHTML');
+
+      proxy.innerHTML = '<div id="hello">world</div>';
+
+      expect(proxy.innerHTML).to.equal('');
+
+      proxy.unlock('innerHTML');
+
+      proxy.innerHTML = '<div id="hello">world</div>';
+
+      expect(proxy.querySelectorAll('#hello').length).to.equal(1);
+    });
+  });
 });

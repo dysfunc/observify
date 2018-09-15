@@ -57,7 +57,7 @@
     "codecov": "^3.0.4",
     "eslint": "^5.0.1",
     "istanbul-instrumenter-loader": "^2.0.0",
-    "jasmine": "^2.5.3",
+    "jasmine": "^3.2.0",
     "jasmine-core": "^2.5.2",
     "karma": "^3.0.0",
     "karma-chrome-launcher": "^2.0.0",

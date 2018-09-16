@@ -78,7 +78,7 @@ const person = Observify({
   }
 });
 
-person.listen('age', function(newValue, oldValue, propName, eventname) {
+person.listen('age', function(newValue, oldValue, propPath) {
   console.log(newValue, oldValue);
 });
 
